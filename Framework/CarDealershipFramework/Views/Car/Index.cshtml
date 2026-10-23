@@ -1,0 +1,18 @@
+﻿@using CarDealershipFramework.ViewModels
+@model IEnumerable<CarViewModel>
+
+<h2>Cars</h2>
+
+@foreach (var m in Model)
+{
+    <p>@m.Car_id @m.Car_make @m.Car_model @m.Manufacture_year</p>
+
+    @Html.RouteLink("Edit", "CarEdit", new { carId = m.Car_id }, null)
+
+    using (Html.BeginRouteForm("CarDelete", new { carId = m.Car_id }, FormMethod.Post))
+    {
+        <button type="submit">Delete</button>
+    }
+
+    @Html.RouteLink("Details", "CarDetails", new { carId = m.Car_id });
+}

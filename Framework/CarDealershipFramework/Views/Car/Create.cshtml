@@ -1,0 +1,31 @@
+﻿@model CarDealershipFramework.ViewModels.CarViewModel
+
+@using (Html.BeginRouteForm("CarCreatePost", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary()
+
+    <div>
+        @Html.LabelFor(model => model.Car_model)
+        @Html.TextBoxFor(model => model.Car_model)
+        @Html.ValidationMessageFor(model => model.Car_model)
+    </div>
+
+    <div>
+        @Html.LabelFor(model => model.Car_make)
+        @Html.TextBoxFor(model => model.Car_make)
+        @Html.ValidationMessageFor(model => model.Car_make)
+    </div>
+
+    <div>
+        @Html.LabelFor(model => model.Manufacture_year)
+        @Html.TextBoxFor(model => model.Manufacture_year, new { type = "number" })
+        @Html.ValidationMessageFor(model => model.Manufacture_year)
+    </div>
+
+    <div>
+        @Html.DropDownListFor(model => model.Dealership_id,  Model.Dealerships)
+    </div>
+
+    <button type="submit">Add car</button>
+}
