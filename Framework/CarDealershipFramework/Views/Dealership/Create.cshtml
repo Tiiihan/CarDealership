@@ -1,0 +1,47 @@
+@model CarDealershipFramework.ViewModels.DealershipViewModel
+
+@{
+    ViewBag.Title = "Add dealership";
+}
+
+<h2>Add dealership</h2>
+
+@using (Html.BeginRouteForm("DealershipCreatePost", FormMethod.Post, null))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    <div class="mb-3">
+        @Html.LabelFor(model => model.Name, new { @class = "form-label" })
+        @Html.TextBoxFor(model => model.Name, new { @class = "form-control" })
+        @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="mb-3">
+        @Html.LabelFor(model => model.License, new { @class = "form-label" })
+        @Html.TextBoxFor(model => model.License, new { @class = "form-control" })
+        @Html.ValidationMessageFor(model => model.License, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="mb-3">
+        @Html.LabelFor(model => model.City, new { @class = "form-label" })
+        @Html.TextBoxFor(model => model.City, new { @class = "form-control" })
+        @Html.ValidationMessageFor(model => model.City, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="mb-3">
+        @Html.LabelFor(model => model.Phone, new { @class = "form-label" })
+        @Html.TextBoxFor(model => model.Phone, new { @class = "form-control" })
+        @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="mb-3">
+        @Html.LabelFor(model => model.SelectedCompanyIds, new { @class = "form-label" })
+        @Html.ListBoxFor(model => model.SelectedCompanyIds, Model.CompanyOptions, new { @class = "form-select", size = 6 })
+        <small class="form-text text-muted">Hold Ctrl to select more than one company.</small>
+        @Html.ValidationMessageFor(model => model.SelectedCompanyIds, "", new { @class = "text-danger" })
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    @Html.RouteLink("Cancel", "DealershipIndex", null, new { @class = "btn btn-outline-secondary" })
+}

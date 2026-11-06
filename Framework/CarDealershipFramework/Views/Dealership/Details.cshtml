@@ -1,0 +1,62 @@
+@model CarDealershipFramework.ViewModels.DealershipViewModel
+
+@{
+    ViewBag.Title = "Dealership details";
+}
+
+<h2>@Model.Name</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<dl class="row">
+    <dt class="col-sm-3">License</dt>
+    <dd class="col-sm-9">@Model.License</dd>
+
+    <dt class="col-sm-3">City</dt>
+    <dd class="col-sm-9">@Model.City</dd>
+
+    <dt class="col-sm-3">Phone</dt>
+    <dd class="col-sm-9">@Model.Phone</dd>
+</dl>
+
+<h3>Partner companies</h3>
+@if (!Model.CompanyNames.Any())
+{
+    <p>No companies are linked to this dealership.</p>
+}
+else
+{
+    <ul>
+    @foreach (var companyName in Model.CompanyNames)
+    {
+        <li>@companyName</li>
+    }
+    </ul>
+}
+
+<h3>Cars</h3>
+@if (!Model.Cars.Any())
+{
+    <p>No cars are assigned to this dealership.</p>
+}
+else
+{
+    <ul>
+    @foreach (var car in Model.Cars)
+    {
+        <li>
+            @Html.RouteLink(
+                car.Car_make + " " + car.Car_model + " (" + car.Manufacture_year + ")",
+                "CarDetails",
+                new { carId = car.Car_id },
+                null)
+        </li>
+    }
+    </ul>
+}
+
+@Html.RouteLink("Edit", "DealershipEdit", new { dealershipId = Model.Dealership_id }, new { @class = "btn btn-primary" })
+@Html.RouteLink("Back to dealerships", "DealershipIndex", null, new { @class = "btn btn-outline-secondary" })

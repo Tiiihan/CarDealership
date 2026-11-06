@@ -11,6 +11,7 @@
 
     using (Html.BeginRouteForm("CarDelete", new { carId = m.Car_id }, FormMethod.Post))
     {
+		@Html.AntiForgeryToken()
         <button type="submit">Delete</button>
     }
 

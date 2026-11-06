@@ -1,0 +1,34 @@
+@model CarDealershipFramework.ViewModels.CompanyViewModel
+
+@{
+    ViewBag.Title = "Add company";
+}
+
+<h2>Add company</h2>
+
+@using (Html.BeginRouteForm("CompanyCreatePost", FormMethod.Post, null))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    <div class="mb-3">
+        @Html.LabelFor(model => model.Company_name, new { @class = "form-label" })
+        @Html.TextBoxFor(model => model.Company_name, new { @class = "form-control" })
+        @Html.ValidationMessageFor(model => model.Company_name, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="mb-3">
+        @Html.LabelFor(model => model.Establish_date, new { @class = "form-label" })
+        @Html.TextBoxFor(model => model.Establish_date, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+        @Html.ValidationMessageFor(model => model.Establish_date, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="mb-3">
+        @Html.LabelFor(model => model.Country, new { @class = "form-label" })
+        @Html.TextBoxFor(model => model.Country, new { @class = "form-control" })
+        @Html.ValidationMessageFor(model => model.Country, "", new { @class = "text-danger" })
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    @Html.RouteLink("Cancel", "CompanyIndex", null, new { @class = "btn btn-outline-secondary" })
+}

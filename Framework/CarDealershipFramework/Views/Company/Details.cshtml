@@ -1,0 +1,33 @@
+@model CarDealershipFramework.ViewModels.CompanyViewModel
+
+@{
+    ViewBag.Title = "Company details";
+}
+
+<h2>@Model.Company_name</h2>
+
+<dl class="row">
+    <dt class="col-sm-3">Country</dt>
+    <dd class="col-sm-9">@Model.Country</dd>
+
+    <dt class="col-sm-3">Established</dt>
+    <dd class="col-sm-9">@Model.Establish_date.ToString("yyyy-MM-dd")</dd>
+</dl>
+
+<h3>Partner dealerships</h3>
+@if (!Model.DealershipNames.Any())
+{
+    <p>This company is not linked to any dealerships yet.</p>
+}
+else
+{
+    <ul>
+    @foreach (var dealershipName in Model.DealershipNames)
+    {
+        <li>@dealershipName</li>
+    }
+    </ul>
+}
+
+@Html.RouteLink("Edit", "CompanyEdit", new { companyId = Model.Company_id }, new { @class = "btn btn-primary" })
+@Html.RouteLink("Back to companies", "CompanyIndex", null, new { @class = "btn btn-outline-secondary" })

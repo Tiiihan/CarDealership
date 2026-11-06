@@ -1,0 +1,48 @@
+@model IEnumerable<CarDealershipFramework.ViewModels.CompanyViewModel>
+
+@{
+    ViewBag.Title = "Companies";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Companies</h2>
+    @Html.RouteLink("Add company", "CompanyCreate", null, new { @class = "btn btn-primary" })
+</div>
+
+@if (!Model.Any())
+{
+    <p>No companies have been added yet.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Country</th>
+                <th>Partner dealerships</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var company in Model)
+        {
+            <tr>
+                <td>@company.Company_name</td>
+                <td>@company.Country</td>
+                <td>@string.Join(", ", company.DealershipNames)</td>
+                <td>
+                    @Html.RouteLink("Details", "CompanyDetails", new { companyId = company.Company_id }, new { @class = "btn btn-sm btn-outline-secondary" })
+                    @Html.RouteLink("Edit", "CompanyEdit", new { companyId = company.Company_id }, new { @class = "btn btn-sm btn-outline-primary" })
+
+                    @using (Html.BeginRouteForm("CompanyDelete", new { companyId = company.Company_id }, FormMethod.Post, new { @class = "d-inline" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
