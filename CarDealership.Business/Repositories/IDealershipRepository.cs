@@ -8,6 +8,7 @@ namespace CarDealership.Business.Repositories
 	{
 		Task<Dealership> GetById(int id);
 		Task<IEnumerable<Dealership>> GetAll();
+		Task<IEnumerable<Dealership>> GetByCompanyId(int companyId);
 		Task<Dealership> GetByLicense(string license);
 		Task<Dealership> Create(Dealership dealership);
 		Task Update(Dealership dealership);

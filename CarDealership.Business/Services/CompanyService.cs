@@ -15,10 +15,12 @@ namespace CarDealership.Business.Services
 		private const int MaxCountryLength = 60;
 
 		private readonly ICompanyRepository _companyRepository;
+		private readonly IDealershipRepository _dealershipRepository;
 
-		public CompanyService(ICompanyRepository companyRepository)
+		public CompanyService(ICompanyRepository companyRepository, IDealershipRepository dealershipRepository)
 		{
 			_companyRepository = companyRepository;
+			_dealershipRepository = dealershipRepository;
 		}
 
 		public async Task<CompanyDto> CreateCompany(CreateCompanyRequest request)
@@ -70,7 +72,7 @@ namespace CarDealership.Business.Services
 				return null;
 			}
 
-			var dealerships = await _companyRepository.GetDealershipsByCompanyId(id);
+			var dealerships = await _dealershipRepository.GetByCompanyId(id);
 			return MapCompany(company, dealerships ?? Enumerable.Empty<Dealership>());
 		}
 

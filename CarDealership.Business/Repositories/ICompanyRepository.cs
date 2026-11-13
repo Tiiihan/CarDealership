@@ -9,7 +9,6 @@ namespace CarDealership.Business.Repositories
 		Task<Company> GetById(int id);
 		Task<IEnumerable<Company>> GetByIds(IEnumerable<int> ids);
 		Task<IEnumerable<Company>> GetByDealershipId(int dealershipId);
-		Task<IEnumerable<Dealership>> GetDealershipsByCompanyId(int companyId);
 		Task<IEnumerable<Company>> GetAll();
 		Task<Company> Create(Company company);
 		Task Update(Company company);
