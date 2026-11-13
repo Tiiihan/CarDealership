@@ -1,0 +1,33 @@
+@model CompanyViewModel
+
+@{
+    ViewData["Title"] = "Company details";
+}
+
+<h2>@Model.Name</h2>
+
+<dl class="row">
+    <dt class="col-sm-3">Country</dt>
+    <dd class="col-sm-9">@Model.Country</dd>
+
+    <dt class="col-sm-3">Established</dt>
+    <dd class="col-sm-9">@Model.EstablishDate.ToString("yyyy-MM-dd")</dd>
+</dl>
+
+<h3>Partner dealerships</h3>
+@if (!Model.DealershipNames.Any())
+{
+    <p>This company is not linked to any dealerships yet.</p>
+}
+else
+{
+    <ul>
+    @foreach (var dealershipName in Model.DealershipNames)
+    {
+        <li>@dealershipName</li>
+    }
+    </ul>
+}
+
+<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+<a asp-action="Index" class="btn btn-outline-secondary">Back to companies</a>

@@ -1,0 +1,50 @@
+@model DealershipViewModel
+
+@{
+    ViewData["Title"] = "Edit dealership";
+}
+
+<h2>Edit dealership</h2>
+
+<form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+    <input asp-for="Id" type="hidden" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="License" class="form-label"></label>
+        <input asp-for="License" class="form-control" />
+        <span asp-validation-for="License" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="City" class="form-label"></label>
+        <input asp-for="City" class="form-control" />
+        <span asp-validation-for="City" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Phone" class="form-label"></label>
+        <input asp-for="Phone" class="form-control" />
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SelectedCompanyIds" class="form-label"></label>
+        <select asp-for="SelectedCompanyIds" asp-items="Model.CompanyOptions" class="form-select" multiple size="6"></select>
+        <small class="form-text text-muted">Hold Ctrl to select more than one company.</small>
+        <span asp-validation-for="SelectedCompanyIds" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,37 @@
+@model CarViewModel
+
+@{
+    ViewData["Title"] = "Car details";
+}
+
+<h2>@Model.Make @Model.Model</h2>
+
+<dl class="row">
+    <dt class="col-sm-3">Make</dt>
+    <dd class="col-sm-9">@Model.Make</dd>
+
+    <dt class="col-sm-3">Model</dt>
+    <dd class="col-sm-9">@Model.Model</dd>
+
+    <dt class="col-sm-3">Manufacture year</dt>
+    <dd class="col-sm-9">@Model.ManufactureYear</dd>
+
+    <dt class="col-sm-3">Dealership</dt>
+    <dd class="col-sm-9">
+        @if (!string.IsNullOrWhiteSpace(Model.DealershipName))
+        {
+            <a asp-controller="Dealership" asp-action="Details" asp-route-id="@Model.DealershipId">@Model.DealershipName</a>
+            @if (!string.IsNullOrWhiteSpace(Model.DealershipCity))
+            {
+                <span>(@Model.DealershipCity)</span>
+            }
+        }
+        else
+        {
+            <span>Unknown</span>
+        }
+    </dd>
+</dl>
+
+<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+<a asp-action="Index" class="btn btn-outline-secondary">Back to cars</a>

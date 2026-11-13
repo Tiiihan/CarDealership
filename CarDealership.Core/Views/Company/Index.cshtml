@@ -1,0 +1,45 @@
+@model IEnumerable<CompanyViewModel>
+
+@{
+    ViewData["Title"] = "Companies";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Companies</h2>
+    <a asp-action="Create" class="btn btn-primary">Add company</a>
+</div>
+
+@if (!Model.Any())
+{
+    <p>No companies have been added yet.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Country</th>
+                <th>Partner dealerships</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var company in Model)
+        {
+            <tr>
+                <td>@company.Name</td>
+                <td>@company.Country</td>
+                <td>@string.Join(", ", company.DealershipNames)</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@company.Id" class="btn btn-sm btn-outline-secondary">Details</a>
+                    <a asp-action="Edit" asp-route-id="@company.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <form asp-action="Delete" asp-route-id="@company.Id" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
