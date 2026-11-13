@@ -1,8 +1,7 @@
-using CarDealershipFramework.Models;
-using CarDealershipFramework.Repositories;
+using CarDealership.Business.Dtos.Company;
+using CarDealership.Business.Services;
 using CarDealershipFramework.ViewModels;
 using System;
-using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
@@ -12,45 +11,37 @@ namespace CarDealershipFramework.Controllers
 	[RoutePrefix("companies")]
 	public class CompanyController : Controller
 	{
-		private readonly IGenericRepository<Company> _companyRepository;
+		private readonly ICompanyService _companyService;
 
-		public CompanyController()
+		public CompanyController(ICompanyService companyService)
 		{
-			_companyRepository = new GenericRepository<Company>(new CarDealershipDbEntities());
+			_companyService = companyService;
 		}
 
 		[HttpGet]
-		[Route("", Name = "CompanyIndex")]
+		[Route("")]
 		public async Task<ActionResult> Index()
 		{
-			var companies = await _companyRepository.GetAllAsync();
-			return View(companies.OrderBy(c => c.Company_name).Select(MapCompany));
+			var companies = await _companyService.GetAllCompanies();
+			return View(companies.OrderBy(company => company.Name).Select(MapToViewModel));
 		}
 
 		[HttpGet]
-		[Route("{companyId:int}", Name = "CompanyDetails")]
-		public async Task<ActionResult> Details(int companyId)
+		[Route("{companyId:int}")]
+		public Task<ActionResult> Details(int companyId)
 		{
-			var company = await _companyRepository.GetByIdAsync(companyId);
-
-			if (company == null)
-			{
-				return HttpNotFound();
-			}
-
-			return View(MapCompany(company));
+			return GetCompanyViewAsync(companyId, "Details");
 		}
 
 		[HttpGet]
-		[Route("create", Name = "CompanyCreate")]
+		[Route("create")]
 		public ActionResult Create()
 		{
-			return View(new CompanyViewModel { Establish_date = DateTime.Today });
+			return View(new CompanyViewModel { EstablishDate = DateTime.Today });
 		}
 
 		[HttpPost]
-		[ValidateAntiForgeryToken]
-		[Route("create", Name = "CompanyCreatePost")]
+		[Route("create")]
 		public async Task<ActionResult> Create(CompanyViewModel viewModel)
 		{
 			if (!ModelState.IsValid)
@@ -58,48 +49,36 @@ namespace CarDealershipFramework.Controllers
 				return View(viewModel);
 			}
 
-			var company = new Company
+			var request = new CreateCompanyRequest
 			{
-				Company_name = viewModel.Company_name,
-				Establish_date = viewModel.Establish_date,
+				Name = viewModel.Name,
+				EstablishDate = viewModel.EstablishDate,
 				Country = viewModel.Country
 			};
 
-			try
+			var createdCompany = await _companyService.CreateCompany(request);
+			if (createdCompany is null)
 			{
-				_companyRepository.Add(company);
-				await _companyRepository.SaveChangesAsync();
-			}
-			catch (DbException)
-			{
-				ModelState.AddModelError("", "Could not create the company.");
+				ModelState.AddModelError(string.Empty, "Unable to create the company. Check the entered data.");
 				return View(viewModel);
 			}
 
 			TempData["Success"] = "Company created.";
-			return RedirectToRoute("CompanyIndex");
+			return RedirectToAction("Index");
 		}
 
 		[HttpGet]
-		[Route("edit/{companyId:int}", Name = "CompanyEdit")]
-		public async Task<ActionResult> Edit(int companyId)
+		[Route("edit/{companyId:int}")]
+		public Task<ActionResult> Edit(int companyId)
 		{
-			var company = await _companyRepository.GetByIdAsync(companyId);
-
-			if (company == null)
-			{
-				return HttpNotFound();
-			}
-
-			return View(MapCompany(company));
+			return GetCompanyViewAsync(companyId, "Edit");
 		}
 
 		[HttpPost]
-		[ValidateAntiForgeryToken]
-		[Route("edit/{companyId:int}", Name = "CompanyEditPost")]
+		[Route("edit/{companyId:int}")]
 		public async Task<ActionResult> Edit(int companyId, CompanyViewModel viewModel)
 		{
-			if (companyId != viewModel.Company_id)
+			if (companyId != viewModel.Id)
 			{
 				return HttpNotFound();
 			}
@@ -109,64 +88,71 @@ namespace CarDealershipFramework.Controllers
 				return View(viewModel);
 			}
 
-			var company = await _companyRepository.GetByIdAsync(companyId);
-
-			if (company == null)
+			if (await _companyService.GetCompanyById(companyId) is null)
 			{
 				return HttpNotFound();
 			}
 
-			company.Company_name = viewModel.Company_name;
-			company.Establish_date = viewModel.Establish_date;
-			company.Country = viewModel.Country;
+			var request = new UpdateCompanyRequest
+			{
+				Id = viewModel.Id,
+				Name = viewModel.Name,
+				EstablishDate = viewModel.EstablishDate,
+				Country = viewModel.Country
+			};
 
-			try
+			if (!await _companyService.UpdateCompany(request))
 			{
-				await _companyRepository.SaveChangesAsync();
-			}
-			catch (DbException)
-			{
-				ModelState.AddModelError("", "Could not update the company.");
+				ModelState.AddModelError(string.Empty, "Unable to update the company. Check the entered data.");
 				return View(viewModel);
 			}
 
 			TempData["Success"] = "Company updated.";
-			return RedirectToRoute("CompanyDetails", new { companyId });
+			return RedirectToAction("Details", new { companyId });
 		}
 
 		[HttpPost]
-		[ValidateAntiForgeryToken]
-		[Route("delete/{companyId:int}", Name = "CompanyDelete")]
+		[Route("delete/{companyId:int}")]
 		public async Task<ActionResult> Delete(int companyId)
 		{
-			var company = await _companyRepository.GetByIdAsync(companyId);
-
-			if (company == null)
+			if (await _companyService.GetCompanyById(companyId) is null)
 			{
 				return HttpNotFound();
 			}
 
-			company.Dealerships.Clear();
-			_companyRepository.Remove(company);
-			await _companyRepository.SaveChangesAsync();
+			if (!await _companyService.DeleteCompany(companyId))
+			{
+				return HttpNotFound();
+			}
 
 			TempData["Success"] = "Company deleted.";
-			return RedirectToRoute("CompanyIndex");
+			return RedirectToAction("Index");
 		}
 
-		private static CompanyViewModel MapCompany(Company company)
+		private static CompanyViewModel MapToViewModel(CompanyDto company)
 		{
 			return new CompanyViewModel
 			{
-				Company_id = company.Company_id,
-				Company_name = company.Company_name,
-				Establish_date = company.Establish_date,
+				Id = company.Id,
+				Name = company.Name,
+				EstablishDate = company.EstablishDate,
 				Country = company.Country,
-				DealershipNames = company.Dealerships
-					.OrderBy(d => d.Name)
-					.Select(d => d.Name)
+				DealershipNames = (company.Dealerships ?? Enumerable.Empty<CarDealership.Business.Dtos.Dealership.DealershipSummaryDto>())
+					.OrderBy(dealership => dealership.Name)
+					.Select(dealership => dealership.Name)
 					.ToList()
 			};
+		}
+
+		private async Task<ActionResult> GetCompanyViewAsync(int companyId, string viewName)
+		{
+			var company = await _companyService.GetCompanyById(companyId);
+			if (company is null)
+			{
+				return HttpNotFound();
+			}
+
+			return View(viewName, MapToViewModel(company));
 		}
 	}
 }

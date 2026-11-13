@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Web.Mvc;
 
 namespace CarDealershipFramework.ViewModels
 {
 	public class DealershipViewModel
 	{
-		public int Dealership_id { get; set; }
+		public int Id { get; set; }
 
 		[Required]
 		[StringLength(50)]
@@ -24,18 +25,18 @@ namespace CarDealershipFramework.ViewModels
 		public string Phone { get; set; }
 
 		[Display(Name = "Partner companies")]
-		public List<int> SelectedCompanyIds { get; set; }
+		public List<int> SelectedCompanyIds { get; set; } = new List<int>();
 
-		public IEnumerable<SelectListItem> CompanyOptions { get; set; }
-		public IEnumerable<string> CompanyNames { get; set; }
-		public IEnumerable<CarSummaryViewModel> Cars { get; set; }
+		public IEnumerable<SelectListItem> CompanyOptions { get; set; } = Enumerable.Empty<SelectListItem>();
+		public IEnumerable<string> CompanyNames { get; set; } = Enumerable.Empty<string>();
+		public IEnumerable<CarSummaryViewModel> Cars { get; set; } = Enumerable.Empty<CarSummaryViewModel>();
 	}
 
 	public class CarSummaryViewModel
 	{
-		public int Car_id { get; set; }
-		public string Car_make { get; set; }
-		public string Car_model { get; set; }
-		public int Manufacture_year { get; set; }
+		public int Id { get; set; }
+		public string Make { get; set; }
+		public string Model { get; set; }
+		public int ManufactureYear { get; set; }
 	}
 }

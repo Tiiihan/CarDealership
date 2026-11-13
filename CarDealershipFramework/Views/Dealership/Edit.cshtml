@@ -6,10 +6,10 @@
 
 <h2>Edit dealership</h2>
 
-@using (Html.BeginRouteForm("DealershipEditPost", new { dealershipId = Model.Dealership_id }, FormMethod.Post, null))
+@using (Html.BeginForm("Edit", "Dealership", new { dealershipId = Model.Id }, FormMethod.Post, null))
 {
-    @Html.AntiForgeryToken()
-    @Html.HiddenFor(model => model.Dealership_id)
+   
+    @Html.HiddenFor(model => model.Id)
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
     <div class="mb-3">
@@ -44,5 +44,5 @@
     </div>
 
     <button type="submit" class="btn btn-primary">Save</button>
-    @Html.RouteLink("Cancel", "DealershipDetails", new { dealershipId = Model.Dealership_id }, new { @class = "btn btn-outline-secondary" })
+    @Html.ActionLink("Cancel", "Details", "Dealership", new { dealershipId = Model.Id }, new { @class = "btn btn-outline-secondary" })
 }

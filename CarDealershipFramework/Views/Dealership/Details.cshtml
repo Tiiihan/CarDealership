@@ -48,15 +48,16 @@ else
     @foreach (var car in Model.Cars)
     {
         <li>
-            @Html.RouteLink(
-                car.Car_make + " " + car.Car_model + " (" + car.Manufacture_year + ")",
-                "CarDetails",
-                new { carId = car.Car_id },
+            @Html.ActionLink(
+                car.Make + " " + car.Model + " (" + car.ManufactureYear + ")",
+                "Details",
+                "Car",
+                new { carId = car.Id },
                 null)
         </li>
     }
     </ul>
 }
 
-@Html.RouteLink("Edit", "DealershipEdit", new { dealershipId = Model.Dealership_id }, new { @class = "btn btn-primary" })
-@Html.RouteLink("Back to dealerships", "DealershipIndex", null, new { @class = "btn btn-outline-secondary" })
+@Html.ActionLink("Edit", "Edit", "Dealership", new { dealershipId = Model.Id }, new { @class = "btn btn-primary" })
+@Html.ActionLink("Back to dealerships", "Index", "Dealership", null, new { @class = "btn btn-outline-secondary" })

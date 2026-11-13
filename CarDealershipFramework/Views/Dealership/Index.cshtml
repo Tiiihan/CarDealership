@@ -6,7 +6,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Dealerships</h2>
-    @Html.RouteLink("Add dealership", "DealershipCreate", null, new { @class = "btn btn-primary" })
+    @Html.ActionLink("Add dealership", "Create", "Dealership", null, new { @class = "btn btn-primary" })
 </div>
 
 @if (!Model.Any())
@@ -21,7 +21,6 @@ else
                 <th>Name</th>
                 <th>License</th>
                 <th>City</th>
-                <th>Partner companies</th>
                 <th></th>
             </tr>
         </thead>
@@ -32,14 +31,13 @@ else
                 <td>@dealership.Name</td>
                 <td>@dealership.License</td>
                 <td>@dealership.City</td>
-                <td>@string.Join(", ", dealership.CompanyNames)</td>
                 <td>
-                    @Html.RouteLink("Details", "DealershipDetails", new { dealershipId = dealership.Dealership_id }, new { @class = "btn btn-sm btn-outline-secondary" })
-                    @Html.RouteLink("Edit", "DealershipEdit", new { dealershipId = dealership.Dealership_id }, new { @class = "btn btn-sm btn-outline-primary" })
+                    @Html.ActionLink("Details", "Details", "Dealership", new { dealershipId = dealership.Id }, new { @class = "btn btn-sm btn-outline-secondary" })
+                    @Html.ActionLink("Edit", "Edit", "Dealership", new { dealershipId = dealership.Id }, new { @class = "btn btn-sm btn-outline-primary" })
 
-                    @using (Html.BeginRouteForm("DealershipDelete", new { dealershipId = dealership.Dealership_id }, FormMethod.Post, new { @class = "d-inline" }))
+                    @using (Html.BeginForm("Delete", "Dealership", new { dealershipId = dealership.Id }, FormMethod.Post, new { @class = "d-inline" }))
                     {
-                        @Html.AntiForgeryToken()
+                       
                         <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
                     }
                 </td>

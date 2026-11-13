@@ -1,11 +1,30 @@
-﻿@model CarDealershipFramework.ViewModels.CarViewModel
+@model CarDealershipFramework.ViewModels.CarViewModel
 
-<h2>Details</h2>
+@{
+    ViewBag.Title = "Car details";
+}
 
-<p>@Model.Car_id</p>
-<p>@Model.Car_make</p>
-<p>@Model.Car_model</p>
-<p>@Model.Manufacture_year</p>
-<p>@Model.DealershipName (@Model.DealershipCity)</p>
+<h2>@Model.Make @Model.Model</h2>
 
-@Html.RouteLink("Back to List", "CarIndex")
+<dl class="row">
+    <dt class="col-sm-3">Make</dt>
+    <dd class="col-sm-9">@Model.Make</dd>
+
+    <dt class="col-sm-3">Model</dt>
+    <dd class="col-sm-9">@Model.Model</dd>
+
+    <dt class="col-sm-3">Manufacture year</dt>
+    <dd class="col-sm-9">@Model.ManufactureYear</dd>
+
+    <dt class="col-sm-3">Dealership</dt>
+    <dd class="col-sm-9">
+        @Html.ActionLink(Model.DealershipName, "Details", "Dealership", new { dealershipId = Model.DealershipId }, null)
+        @if (!string.IsNullOrWhiteSpace(Model.DealershipCity))
+        {
+            <span>(@Model.DealershipCity)</span>
+        }
+    </dd>
+</dl>
+
+@Html.ActionLink("Edit", "Edit", "Car", new { carId = Model.Id }, new { @class = "btn btn-primary" })
+@Html.ActionLink("Back to cars", "Index", "Car", null, new { @class = "btn btn-outline-secondary" })

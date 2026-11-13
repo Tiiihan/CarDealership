@@ -1,28 +1,35 @@
 ﻿using CarDealershipFramework.Validations;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Web.Mvc;
 
 namespace CarDealershipFramework.ViewModels
 {
 	public class CarViewModel
 	{
-		public int Car_id { get; set; }
+		public int Id { get; set; }
 
 		[Required]
-		[MaxLength(150)]
-		public string Car_make { get; set; }
+		[MaxLength(100)]
+		[Display(Name = "Make")]
+		public string Make { get; set; }
 
 		[Required]
-		[MaxLength(150)]
-		public string Car_model { get; set; }
+		[MaxLength(100)]
+		[Display(Name = "Model")]
+		public string Model { get; set; }
 
 		[Required]
 		[DateValidationAttribute]
-		public int Manufacture_year { get; set; }
-		public int Dealership_id { get; set; }
+		[Display(Name = "Manufacture year")]
+		public int ManufactureYear { get; set; }
+
+		[Range(1, int.MaxValue, ErrorMessage = "Select a dealership.")]
+		[Display(Name = "Dealership")]
+		public int DealershipId { get; set; }
 		public string DealershipName { get; set; }
 		public string DealershipCity { get; set; }
-		public IEnumerable<SelectListItem> Dealerships { get; set; }
+		public IEnumerable<SelectListItem> DealershipOptions { get; set; } = Enumerable.Empty<SelectListItem>();
 	}
 }

@@ -1,9 +1,7 @@
-using CarDealershipFramework.Models;
-using CarDealershipFramework.Repositories;
+using CarDealership.Business.Dtos.Car;
+using CarDealership.Business.Services;
 using CarDealershipFramework.ViewModels;
-using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
@@ -13,194 +11,196 @@ namespace CarDealershipFramework.Controllers
 	[RoutePrefix("cars")]
 	public class CarController : Controller
 	{
-		private readonly IGenericRepository<Car> _carRepository;
-		private readonly IGenericRepository<Dealership> _dealershipRepository;
+		private readonly ICarService _carService;
+		private readonly IDealershipService _dealershipService;
 
-		public CarController()
+		public CarController(ICarService carService, IDealershipService dealershipService)
 		{
-			var dbContext = new CarDealershipDbEntities();
-			_carRepository = new GenericRepository<Car>(dbContext);
-			_dealershipRepository = new GenericRepository<Dealership>(dbContext);
+			_carService = carService;
+			_dealershipService = dealershipService;
 		}
 
 		[HttpGet]
-		[Route("", Name = "CarIndex")]
+		[Route("")]
 		public async Task<ActionResult> Index()
 		{
-			var cars = await _carRepository.GetAllAsync();
+			var cars = await _carService.GetAllCars();
 
-			if (!cars.Any())
-			{
-				return HttpNotFound();
-			}
-
-			return View(cars.Select(car => new CarViewModel
-			{
-				Car_id = car.Car_id,
-				Car_model = car.Car_model,
-				Car_make = car.Car_make,
-				Manufacture_year = car.Manufacture_year
-			}));
+			return View(cars.Select(MapToViewModel));
 		}
 
 		[HttpGet]
-		[Route("{carId:int}", Name = "CarDetails")]
+		[Route("statistics")]
+		public async Task<ActionResult> Statistics()
+		{
+			var statistics = await _carService.GetCityCarStatistics();
+			return View(statistics.Select(MapToViewModel));
+		}
+
+		[HttpGet]
+		[Route("{carId:int}")]
 		public async Task<ActionResult> Details(int carId)
 		{
-			var car = await _carRepository.GetByIdAsync(carId);
+			var car = await _carService.GetCarById(carId);
 
-			if (car == null)
+			if (car is null)
 			{
 				return HttpNotFound();
 			}
 
-			return View(new CarViewModel
-			{
-				Car_id = car.Car_id,
-				Car_model = car.Car_model,
-				Car_make = car.Car_make,
-				Manufacture_year = car.Manufacture_year,
-				Dealership_id = car.Dealership_id,
-				DealershipName = car.Dealership.Name,
-				DealershipCity = car.Dealership.City
-			});
+			var dealership = await _dealershipService.GetDealershipById(car.DealershipId);
+
+			var viewModel = MapToViewModel(car);
+			viewModel.DealershipName = dealership?.Name;
+			viewModel.DealershipCity = dealership?.City;
+
+			return View(viewModel);
 		}
 
 		[HttpGet]
-		[Route("create", Name = "CarCreate")]
+		[Route("create")]
 		public async Task<ActionResult> Create()
 		{
 			return View(new CarViewModel
 			{
-				Dealerships = await GetDealershipOptionsAsync()
+				DealershipOptions = await GetDealershipOptionsAsync()
 			});
 		}
 
 		[HttpPost]
-		[ValidateAntiForgeryToken]
-		[Route("create", Name = "CarCreatePost")]
+		[Route("create")]
 		public async Task<ActionResult> Create(CarViewModel viewModel)
 		{
-			var dealershipExists = await _dealershipRepository.GetByIdAsync(viewModel.Dealership_id) != null;
-
-			if (!ModelState.IsValid || !dealershipExists)
+			if (!ModelState.IsValid)
 			{
-				if (!dealershipExists)
-				{
-					ModelState.AddModelError("Dealership_id", "The selected dealership does not exist.");
-				}
-
-				viewModel.Dealerships = await GetDealershipOptionsAsync();
+				viewModel.DealershipOptions = await GetDealershipOptionsAsync();
 				return View(viewModel);
 			}
 
-			var newCar = new Car
+			var newCar = new CreateCarRequest
 			{
-				Car_make = viewModel.Car_make,
-				Car_model = viewModel.Car_model,
-				Manufacture_year = viewModel.Manufacture_year,
-				Dealership_id = viewModel.Dealership_id
+				Make = viewModel.Make,
+				Model = viewModel.Model,
+				ManufactureYear = viewModel.ManufactureYear,
+				DealershipId = viewModel.DealershipId
 			};
 
-			try
+			var createdCar = await _carService.AddCar(newCar);
+			if (createdCar is null)
 			{
-				_carRepository.Add(newCar);
-				await _carRepository.SaveChangesAsync();
-			}
-			catch (DbException ex)
-			{
-				Console.WriteLine(ex.Message);
-				ModelState.AddModelError("", "Could not add car");
-				viewModel.Dealerships = await GetDealershipOptionsAsync();
+				ModelState.AddModelError(string.Empty, "Unable to create the car. Check the entered data and dealership.");
+				viewModel.DealershipOptions = await GetDealershipOptionsAsync();
 				return View(viewModel);
 			}
 
-			return RedirectToRoute("CarIndex");
+			return RedirectToAction("Index");
 		}
 
 		[HttpGet]
-		[Route("edit/{carId:int}", Name = "CarEdit")]
+		[Route("edit/{carId:int}")]
 		public async Task<ActionResult> Edit(int carId)
 		{
-			var car = await _carRepository.GetByIdAsync(carId);
+			var car = await _carService.GetCarById(carId);
 
-			if (car == null)
+			if (car is null)
 			{
 				return HttpNotFound();
 			}
 
-			return View(new CarViewModel
-			{
-				Car_id = car.Car_id,
-				Car_make = car.Car_make,
-				Car_model = car.Car_model,
-				Manufacture_year = car.Manufacture_year,
-				Dealership_id = car.Dealership_id,
-				Dealerships = await GetDealershipOptionsAsync()
-			});
+			var viewModel = MapToViewModel(car);
+			viewModel.DealershipOptions = await GetDealershipOptionsAsync();
+
+			return View(viewModel);
 		}
 
 		[HttpPost]
-		[ValidateAntiForgeryToken]
-		[Route("edit/{carId:int}", Name = "CarEditPost")]
+		[Route("edit/{carId:int}")]
 		public async Task<ActionResult> Edit(int carId, CarViewModel viewModel)
 		{
-			if (carId != viewModel.Car_id)
+			if (carId != viewModel.Id)
 			{
 				return HttpNotFound();
 			}
 
 			if (!ModelState.IsValid)
 			{
-				viewModel.Dealerships = await GetDealershipOptionsAsync();
+				viewModel.DealershipOptions = await GetDealershipOptionsAsync();
 				return View(viewModel);
 			}
 
-			var carToUpdate = await _carRepository.GetByIdAsync(viewModel.Car_id);
+			var existingCar = await _carService.GetCarById(viewModel.Id);
 
-			if (carToUpdate is null)
+			if (existingCar is null)
 			{
 				return HttpNotFound();
 			}
 
-			carToUpdate.Car_make = viewModel.Car_make;
-			carToUpdate.Car_model = viewModel.Car_model;
-			carToUpdate.Manufacture_year = viewModel.Manufacture_year;
-			carToUpdate.Dealership_id = viewModel.Dealership_id;
+			var request = new UpdateCarRequest
+			{
+				Id = viewModel.Id,
+				Make = viewModel.Make,
+				Model = viewModel.Model,
+				ManufactureYear = viewModel.ManufactureYear,
+				DealershipId = viewModel.DealershipId
+			};
 
-			await _carRepository.SaveChangesAsync();
-			return RedirectToRoute("CarIndex");
+			var isUpdated = await _carService.UpdateCar(request);
+			if (!isUpdated)
+			{
+				ModelState.AddModelError(string.Empty, "Unable to update the car. Check the entered data and dealership.");
+				viewModel.DealershipOptions = await GetDealershipOptionsAsync();
+				return View(viewModel);
+			}
+
+			return RedirectToAction("Index");
 		}
 
 		[HttpPost]
-		[ValidateAntiForgeryToken]
-		[Route("delete/{carId:int}", Name = "CarDelete")]
+		[Route("delete/{carId:int}")]
 		public async Task<ActionResult> Delete(int carId)
 		{
-			var carToDelete = await _carRepository.GetByIdAsync(carId);
+			await _carService.DeleteCar(carId);
 
-			if (carToDelete is null)
-			{
-				return HttpNotFound();
-			}
-
-			_carRepository.Remove(carToDelete);
-			await _carRepository.SaveChangesAsync();
-			return RedirectToRoute("CarIndex");
+			return RedirectToAction("Index");
 		}
 
 		private async Task<IEnumerable<SelectListItem>> GetDealershipOptionsAsync()
 		{
-			var dealerships = await _dealershipRepository.GetAllAsync();
+			var dealerships = await _dealershipService.GetAllDealerships();
 
-			return dealerships
-				.OrderBy(d => d.Name)
-				.Select(d => new SelectListItem
-				{
-					Text = d.Name,
-					Value = d.Dealership_id.ToString()
-				})
-				.ToList();
+			return dealerships.OrderBy(d => d.Name)
+							  .Select(d => new SelectListItem
+							  {
+								  Text = d.Name,
+								  Value = d.Id.ToString()
+							  })
+							  .ToList();
+		}
+
+		private static CarViewModel MapToViewModel(CarDto car)
+		{
+			return new CarViewModel
+			{
+				Id = car.Id,
+				Make = car.Make,
+				Model = car.Model,
+				ManufactureYear = car.ManufactureYear,
+				DealershipId = car.DealershipId
+			};
+		}
+
+		private static CityCarStatisticsViewModel MapToViewModel(CityCarStatisticsDto statistics)
+		{
+			return new CityCarStatisticsViewModel
+			{
+				City = statistics.City,
+				DealershipCount = statistics.DealershipCount,
+				CarCount = statistics.CarCount,
+				AverageManufactureYear = statistics.AverageManufactureYear,
+				NewestManufactureYear = statistics.NewestManufactureYear,
+				OldestManufactureYear = statistics.OldestManufactureYear,
+				MostPopularMake = statistics.MostPopularMake
+			};
 		}
 	}
 }

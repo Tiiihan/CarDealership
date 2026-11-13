@@ -7,14 +7,16 @@ namespace CarDealershipFramework.Validations
 	{
 		private const int FIRST_CAR = 1885;
 
+		public DateValidationAttribute()
+			: base("Enter a valid manufacture year.")
+		{
+		}
+
 		public override bool IsValid(object value)
 		{
-			if (!int.TryParse(value.ToString(), out int result))
-			{
-				return false;
-			}
-
-			return result >= FIRST_CAR && result <= DateTime.Now.Year;
+			return value is int year
+				&& year >= FIRST_CAR
+				&& year <= DateTime.Today.Year;
 		}
 	}
 }

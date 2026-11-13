@@ -1,0 +1,45 @@
+@model IEnumerable<CarDealershipFramework.ViewModels.CityCarStatisticsViewModel>
+
+@{
+    ViewBag.Title = "City car statistics";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>City car statistics</h2>
+    @Html.ActionLink("Back to cars", "Index", "Car", null, new { @class = "btn btn-outline-secondary" })
+</div>
+
+@if (!Model.Any())
+{
+    <p>There is not enough data to calculate statistics yet.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>City</th>
+                <th>Dealerships</th>
+                <th>Cars</th>
+                <th>Average year</th>
+                <th>Newest year</th>
+                <th>Oldest year</th>
+                <th>Most popular make</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var statistics in Model)
+        {
+            <tr>
+                <td>@statistics.City</td>
+                <td>@statistics.DealershipCount</td>
+                <td>@statistics.CarCount</td>
+                <td>@statistics.AverageManufactureYear</td>
+                <td>@statistics.NewestManufactureYear</td>
+                <td>@statistics.OldestManufactureYear</td>
+                <td>@statistics.MostPopularMake</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

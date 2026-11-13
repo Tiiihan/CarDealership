@@ -6,9 +6,9 @@
 
 <h2>Add dealership</h2>
 
-@using (Html.BeginRouteForm("DealershipCreatePost", FormMethod.Post, null))
+@using (Html.BeginForm("Create", "Dealership", FormMethod.Post, null))
 {
-    @Html.AntiForgeryToken()
+   
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
     <div class="mb-3">
@@ -43,5 +43,5 @@
     </div>
 
     <button type="submit" class="btn btn-primary">Create</button>
-    @Html.RouteLink("Cancel", "DealershipIndex", null, new { @class = "btn btn-outline-secondary" })
+    @Html.ActionLink("Cancel", "Index", "Dealership", null, new { @class = "btn btn-outline-secondary" })
 }

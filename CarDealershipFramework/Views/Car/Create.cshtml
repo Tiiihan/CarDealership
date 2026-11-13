@@ -1,31 +1,40 @@
-﻿@model CarDealershipFramework.ViewModels.CarViewModel
+@model CarDealershipFramework.ViewModels.CarViewModel
 
-@using (Html.BeginRouteForm("CarCreatePost", FormMethod.Post))
+@{
+    ViewBag.Title = "Add car";
+}
+
+<h2>Add car</h2>
+
+@using (Html.BeginForm("Create", "Car", FormMethod.Post))
 {
-    @Html.AntiForgeryToken()
-    @Html.ValidationSummary()
+   
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-    <div>
-        @Html.LabelFor(model => model.Car_model)
-        @Html.TextBoxFor(model => model.Car_model)
-        @Html.ValidationMessageFor(model => model.Car_model)
+    <div class="mb-3">
+        @Html.LabelFor(model => model.Model, new { @class = "form-label" })
+        @Html.TextBoxFor(model => model.Model, new { @class = "form-control" })
+        @Html.ValidationMessageFor(model => model.Model, "", new { @class = "text-danger" })
     </div>
 
-    <div>
-        @Html.LabelFor(model => model.Car_make)
-        @Html.TextBoxFor(model => model.Car_make)
-        @Html.ValidationMessageFor(model => model.Car_make)
+    <div class="mb-3">
+        @Html.LabelFor(model => model.Make, new { @class = "form-label" })
+        @Html.TextBoxFor(model => model.Make, new { @class = "form-control" })
+        @Html.ValidationMessageFor(model => model.Make, "", new { @class = "text-danger" })
     </div>
 
-    <div>
-        @Html.LabelFor(model => model.Manufacture_year)
-        @Html.TextBoxFor(model => model.Manufacture_year, new { type = "number" })
-        @Html.ValidationMessageFor(model => model.Manufacture_year)
+    <div class="mb-3">
+        @Html.LabelFor(model => model.ManufactureYear, new { @class = "form-label" })
+        @Html.TextBoxFor(model => model.ManufactureYear, new { @class = "form-control", type = "number" })
+        @Html.ValidationMessageFor(model => model.ManufactureYear, "", new { @class = "text-danger" })
     </div>
 
-    <div>
-        @Html.DropDownListFor(model => model.Dealership_id,  Model.Dealerships)
+    <div class="mb-3">
+        @Html.LabelFor(model => model.DealershipId, new { @class = "form-label" })
+        @Html.DropDownListFor(model => model.DealershipId, Model.DealershipOptions, "Select a dealership", new { @class = "form-select" })
+        @Html.ValidationMessageFor(model => model.DealershipId, "", new { @class = "text-danger" })
     </div>
 
-    <button type="submit">Add car</button>
+    <button type="submit" class="btn btn-primary">Create</button>
+    @Html.ActionLink("Cancel", "Index", "Car", null, new { @class = "btn btn-outline-secondary" })
 }
